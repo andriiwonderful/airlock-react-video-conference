@@ -1,4 +1,4 @@
-# Airlock Video Chat App - Frontend
+# Airlock Video Chat App - Server
 Twilio Video Rest API integration with Node, React
 
 ## Getting Started
@@ -17,19 +17,11 @@ or
 npm install
 ```
 
-### Running
-
-Local development mode
+### Running server
 ```
 npm start
 
-or 
+or
 
-npm run dev
-```
-
-### Building
-
-```
-npm run build
+node server.js
 ```
