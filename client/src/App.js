@@ -1,15 +1,21 @@
 import React from 'react'
-import { Route, Link, BrowserRouter as Router, Switch } from 'react-router-dom'
-import SelectRoom from './pages/selectroom/selectroom'
-import LoginRoom from './pages/loginroom/loginroom'
+import { Route, BrowserRouter as Router, Switch } from 'react-router-dom'
+import SelectPage from './pages/SelectPage'
+import LoginPage from './pages/LoginPage'
+import { CookiesProvider } from 'react-cookie'
+import PrivateRoute from './components/PrivateRoute'
 function App() {
   return (
-    <Router>
-      <Switch>
-        <Route exact path="/" component={SelectRoom} />
-        <Route path="/login" component={LoginRoom} />
-      </Switch>
-    </Router>
+    <CookiesProvider>
+      <Router>
+        <Switch>
+          <PrivateRoute exact path="/">
+            <SelectPage />
+          </PrivateRoute>
+          <Route path="/login" component={LoginPage} />
+        </Switch>
+      </Router>
+    </CookiesProvider>
   )
 }
 export default App
