@@ -1,20 +1,30 @@
 import React from 'react'
-import { Route, BrowserRouter as Router, Switch } from 'react-router-dom'
+import {
+  Route,
+  BrowserRouter as Router,
+  Switch,
+  Redirect,
+} from 'react-router-dom'
 import SelectPage from './pages/SelectPage'
 import LoginPage from './pages/LoginPage'
-import PrivateRoute from './components/PrivateRoute'
+import DashboardPage from './pages/DashboardPage'
+import SelectRoute from './components/RouteComponents/SelectRoute'
+import DashboardRoute from './components/RouteComponents/DashboardRoute'
 import { useCookies } from 'react-cookie'
 function App() {
   const [cookies, setCookie, removeCookie] = useCookies('airlock_access_token')
-
-  const accessToken = cookies.airlock_access_token
-
   return (
     <Router>
       <Switch>
-        <PrivateRoute exact path="/">
+        <Route exact path="/">
+          <Redirect to="/select"></Redirect>
+        </Route>
+        <SelectRoute exact path="/select">
           <SelectPage />
-        </PrivateRoute>
+        </SelectRoute>
+        <DashboardRoute path="/dashboard">
+          <DashboardPage />
+        </DashboardRoute>
         <Route path="/login" component={LoginPage} />
       </Switch>
     </Router>

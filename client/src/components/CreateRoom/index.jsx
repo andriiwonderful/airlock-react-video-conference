@@ -12,6 +12,7 @@ import { useSelector } from 'react-redux'
 import { useCookies } from 'react-cookie'
 import HttpStatus from 'http-status-codes'
 import { useDispatch } from 'react-redux'
+import { useHistory } from 'react-router-dom'
 import actions from '../../redux/auth/actions'
 import tactions from '../../redux/twilio/actions'
 const useStyles = makeStyles((theme) => ({
@@ -44,6 +45,7 @@ const CreateRoom = () => {
     'airlock_access_token',
   ])
   const dispatch = useDispatch()
+  const history = useHistory()
   const onChangeRoomMode = useCallback((e) => {
     setRoomMode(e.target.value)
   }, [])
@@ -68,7 +70,7 @@ const CreateRoom = () => {
         const twilioToken = res.data
         setCookie('airlock_twilio_token', twilioToken)
         dispatch(tactions.setToken(twilioToken))
-        console.log(res.data)
+        history.push('/dashboard')
       })
       .catch((error) => {
         if (error.response.status === HttpStatus.UNAUTHORIZED) {

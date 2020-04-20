@@ -1,16 +1,26 @@
 import React from 'react'
 import { Route, Redirect } from 'react-router-dom'
 import { useSelector } from 'react-redux'
-import { useCookies } from 'react-cookie'
-const PrivateRoute = ({ children, ...rest }) => {
-  const accessToken = useSelector((state) => state.auth.token)
+
+const DashboardRoute = ({ children, ...rest }) => {
+  const { token: accessToken, room } = useSelector((state) => state.auth)
   const isAuthenticated = accessToken ? true : false
+  const hasRoom = room ? true : false
   return (
     <Route
       {...rest}
       render={({ location }) =>
         isAuthenticated ? (
-          children
+          hasRoom ? (
+            children
+          ) : (
+            <Redirect
+              to={{
+                pathname: '/select',
+                state: { from: location },
+              }}
+            />
+          )
         ) : (
           <Redirect
             to={{
@@ -24,4 +34,4 @@ const PrivateRoute = ({ children, ...rest }) => {
   )
 }
 
-export default PrivateRoute
+export default DashboardRoute

@@ -57,7 +57,11 @@ const LonginRoom = () => {
       .post(`${endpoint}/login`, payload)
       .then((res) => {
         const token = res.data
-        dispatch(actions.login(token))
+        dispatch(
+          actions.login(token, (token) =>
+            setCookie('airlock_access_token', token),
+          ),
+        )
         history.replace(from)
       })
       .catch((error) => {

@@ -10,3 +10,5 @@ const twilioReducer = (state = initState, action) => {
       return state
   }
 }
+
+export default twilioReducer

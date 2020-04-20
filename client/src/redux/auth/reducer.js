@@ -1,4 +1,7 @@
 import actions from './actions'
+import jwt from 'jsonwebtoken'
+import dotenv from 'dotenv'
+dotenv.config()
 
 function accessCookie(cookieName) {
   var name = cookieName + '='
@@ -11,22 +14,43 @@ function accessCookie(cookieName) {
 }
 
 const initToken = accessCookie('airlock_access_token')
-console.log('initToken', initToken)
-const initState = {
-  token: 'airlock_access_token',
+let initState = {}
+if (initToken) {
+  let decoded = jwt.verify(initToken, process.env.REACT_APP_AUTH_SECRET)
+  initState = {
+    token: initToken,
+    name: decoded.username || '',
+    room: decoded.roomname || '',
+  }
+} else {
+  initState = {
+    token: initToken,
+    name: '',
+    room: '',
+  }
 }
 
+console.log(initState)
 const authReducer = (state = initState, action) => {
   switch (action.type) {
     case actions.LOGIN:
-      console.log('LOGIN ACTION ', action)
-      return { token: action.token }
+      const decoded = jwt.verify(
+        action.token,
+        process.env.REACT_APP_AUTH_SECRET,
+      )
+
+      action.setCookie(action.token)
+      return {
+        token: action.token,
+        name: decoded.username,
+        room: decoded.roomname,
+      }
     case actions.LOGOUT:
       //   removeCookie('airlock_access_token')
-      return { token: null }
+      return { token: null, name: null, room: null }
     case actions.LOGIN_FAIL:
       //   removeCookie('airlock_access_token')
-      return { token: null }
+      return { token: null, name: null, room: null }
     default:
       return state
   }
