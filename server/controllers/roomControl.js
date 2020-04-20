@@ -1,4 +1,4 @@
-const db = require("../models/db");
+const models = require("../models");
 const jwt = require("jsonwebtoken");
 const AccessToken = require("twilio").jwt.AccessToken;
 const VideoGrant = AccessToken.VideoGrant;
@@ -8,10 +8,24 @@ const twilioAccountSid = process.env.TWILIO_ACCOUNT_SID;
 const twilioApiKeySID = process.env.TWILIO_API_KEY_SID;
 const twilioApiKeySecret = process.env.TWILIO_API_KEY_SECRET;
 
-module.exports = async (req, res, next) => {
+const createRoom = async (req, res, next) => {
   try {
+    const { User, Room } = models;
     const accessToken = req.headers.authorization.split(" ")[1];
     const decodedToken = jwt.verify(accessToken, process.env.AUTH_TOKEN_SECRET);
+    const { accesscode } = decodedToken;
+    const { roomname, roommode } = req.body;
+
+    const newRoom = await Room.create(
+      { roomname, roommode, roomowner: accesscode },
+      { fields: ["roomowner", "roomname", "roommode"] }
+    );
+
+    const updatedUser = await User.update(
+      { roomname: newRoom.roomname },
+      { where: { accesscode: accesscode } }
+    );
+
     const token = new AccessToken(
       twilioAccountSid,
       twilioApiKeySID,
@@ -27,7 +41,9 @@ module.exports = async (req, res, next) => {
   } catch (err) {
     console.log(err);
     res.status(500).json({
-      error: new Error("Invalid request"),
+      error: err.original.detail,
     });
   }
 };
+
+module.exports = { createRoom };

@@ -8,9 +8,11 @@ import Typography from '@material-ui/core/Typography'
 import { makeStyles } from '@material-ui/core/styles'
 import Container from '@material-ui/core/Container'
 import axios from 'axios'
-import { useCookies } from 'react-cookie'
-import useAuth from '../../hooks/useAuth'
 import { useHistory, useLocation } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+import actions from '../../redux/auth/actions'
+import AlertDialog from '../../components/Dialogs/AlertDialog'
+import { useCookies } from 'react-cookie'
 const useStyles = makeStyles((theme) => ({
   paper: {
     marginTop: theme.spacing(8),
@@ -32,43 +34,49 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const LonginRoom = () => {
-  let history = useHistory()
-  let location = useLocation()
-
+  const history = useHistory()
+  const location = useLocation()
   const { from } = location.state || { from: { pathname: '/' } }
-
   const classes = useStyles()
   const [passcode, setPasscode] = useState('')
-  const [isAuthenticated, accessToken, setAccessToken] = useAuth()
+  const dispatch = useDispatch()
+  const [dialogShow, setDialogShow] = useState(false)
+  const [cookies, setCookie, removeCookie] = useCookies([
+    'airlock_access_token',
+  ])
 
   const onChangePasscode = useCallback((e) => {
     setPasscode(e.target.value)
   }, [])
-  const [cookies, setCookie] = useCookies([
-    'airlock_access_token',
-    'airlock_twilio_token',
-  ])
+
   const onSubmit = (e) => {
     e.preventDefault()
-    console.log(process.env.REACT_APP_SERVER_ENDPOINT)
-    const endpoint = process.env.REACT_APP_SERVER_ENDPOINT + '/login'
+    const endpoint = 'http://localhost:8081'
     const payload = { passcode }
     axios
-      .post('http://localhost:8081/login', payload)
+      .post(`${endpoint}/login`, payload)
       .then((res) => {
-        setAccessToken(res.data)
-        // console.log(setAccessToken)
-        // setCookie('airlock_access_token', res.data)
+        const token = res.data
+        dispatch(actions.login(token))
         history.replace(from)
       })
       .catch((error) => {
-        console.log('err', error)
+        setDialogShow(true)
+        removeCookie('airlock_access_token')
+        dispatch(actions.loginFail())
       })
   }
 
   return (
     <Container maxWidth="xs">
       <CssBaseline />
+      <AlertDialog
+        isOpen={dialogShow}
+        title="Access Failed"
+        description="Passcode doesn't exit!"
+        buttonText="OK"
+        handleClose={() => setDialogShow(false)}
+      />
       <div className={classes.paper}>
         <Avatar className={classes.avatar}>
           <LockOutlinedIcon />

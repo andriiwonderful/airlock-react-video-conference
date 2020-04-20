@@ -1,9 +1,10 @@
 import React from 'react'
-import useAuth from '../../hooks/useAuth'
 import { Route, Redirect } from 'react-router-dom'
+import { useSelector } from 'react-redux'
+import { useCookies } from 'react-cookie'
 const PrivateRoute = ({ children, ...rest }) => {
-  const [isAuthenticated] = useAuth()
-  console.log('isAuthenticated =>', isAuthenticated)
+  const accessToken = useSelector((state) => state.auth.token)
+  const isAuthenticated = accessToken ? true : false
   return (
     <Route
       {...rest}

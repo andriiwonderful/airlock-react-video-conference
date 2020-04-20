@@ -28,15 +28,7 @@ const useAuth = () => {
     })
   }
 
-  // const removeAccessToken = () => {
-  //   removeCookie('airlock_access_token')
-  // }
-
-  // const accessToken = cookies.airlock_access_token
-  // const isAuthenticated = accessToken ? true : false
-  // const twilioToken = cookies.airlock_twilio_token
-  // console.log(accessToken)
-  return [isAuthenticated, accessToken, setAccessToken]
+  return { setAccessToken }
 }
 
 export default useAuth
