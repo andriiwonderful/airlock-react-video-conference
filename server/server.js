@@ -1,22 +1,38 @@
-const express = require("express");
-const router = require("./routes/router");
-const app = express();
-const bodyParser = require("body-parser");
+const express = require('express')
+const apiRouter = require('./routes/apiRouter')
+const app = express()
+const cookieParser = require('cookie-parser')
+const bodyParser = require('body-parser')
+const cors = require('cors')
+const path = require('path')
+const mongoose = require('mongoose')
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+function start() {
+  app.use(bodyParser.urlencoded({ extended: false }))
+  app.use(bodyParser.json())
+  app.use(cookieParser())
 
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Authorization, Content-Length, X-Requested-With"
-  );
-  res.header("Access-Control-Allow-Credentials", true);
-  next();
-});
+  // connect to mongo db
+  mongoose.connect(
+    'mongodb+srv://gurusoft:jyuS4J1obK2U8KPQ@cluster0-fpfsx.mongodb.net/squareparty?retryWrites=true&w=majority',
+    { useNewUrlParser: true, useUnifiedTopology: true },
+  )
 
-app.use("/", router);
+  const whitelist = ['http://localhost:3000', 'https://squareparty.netlify.app']
+  const corsOptions = {
+    origin: whitelist,
+    credentials: true,
+  }
+  app.use(cors(corsOptions))
+  app.use('/api', apiRouter)
+  app.use(express.static('./build/'))
+  app.get('*', function (req, res) {
+    res.sendFile(path.resolve('build', 'index.html'))
+  })
 
-app.listen(8081, () => console.log("token server running on 8081"));
+  app.listen(process.env.PORT || 5000, () =>
+    console.log('token server running on 5000'),
+  )
+}
+
+module.exports.start = start

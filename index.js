@@ -1,0 +1,8 @@
+const path = require('path')
+if (process.env.NODE_ENV.trim() === 'dev')
+  require('dotenv').config({ path: path.resolve('.env.dev') })
+else if (process.env.NODE_ENV.trim() === 'prod')
+  require('dotenv').config({ path: path.resolve('.env.prod') })
+else require('dotenv').config({ path: path.resolve('.env') })
+var server = require('./server/server.js')
+server.start()
